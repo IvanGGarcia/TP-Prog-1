@@ -1,3 +1,6 @@
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,6 +36,8 @@ typedef struct
 } Receta;
 
 
+
+
 typedef struct
  {
    char nombre_preparacion[20];
@@ -51,6 +56,7 @@ typedef struct
   PedidoPreparacion items_pedido[20]; ///puedo pedir hasta 20 items
   int cantItems; ///los validos del arreglo de items_pedido
   float valor_total; ///valor total a pagar
+  int cancelado; /// 0 para no, 1 para sí
 }Venta;
 
 
@@ -81,6 +87,9 @@ int main()
     Preparacion demanda [30];
     Receta recetas [30];
     PrecioPreparacion Precios [20];
+    Preparacion Preparaciones [20];
+    Venta Ventas[30];
+    int Venta
 
 
 /// header
@@ -111,7 +120,7 @@ int main()
             muestraRecetas (recetas, ingXRece, validos);
             break;
         case 3 :
-            printf ("Ingrese 1 para establecer los precios. Ingrese 2 para modificar precios ya establecidos. Ingrese 3 para ingresar una nueva venta.\n");
+            printf ("Ingrese 1 para establecer los precios. Ingrese 2 para modificar precios ya establecidos. Ingrese 3 para ingresar una nueva venta.\n Ingrese 4 para cancelar una venta.");
             scanf ("%i", &opcionMenu2);
             switch (opcionMenu2)
             {
@@ -119,7 +128,13 @@ int main()
                 CargarPrecios (Precios, Nombres, validos2);
                 break;
             case 2:
-                CambioPrecio ();
+                CambioPrecio (Precios, validos2);
+                break;
+            case 3:
+                NuevaVenta (Preparaciones, Ventas);
+                break;
+            case 4:
+                CancelaVenta (Ventas);
                 break;
             }
 
@@ -410,18 +425,20 @@ else
 fclose (fp);
 }
 
-void NuevaVenta ()
+void NuevaVenta (Preparacion Preparaciones[20], Venta Ventas[30])
 {
     FILE * fp;
-    fp = fopen ("preparadosventa.bin", "rb");
+    fp = fopen ("stockventa.bin", "rb");
     if (fp != NULL)
     {
-        while (CantPreparados(&Nombres[i], sizeof(Preparacion), 1, fp ) > 0 )
-  {
-    i++;
-  }
+       fseek(fp,0,SEEK_END);
+    int stock = ftell(fp)/sizeof(Preparacion);
+    rewind (fp);
 
-
+    for (int i = 0; i<stock; i++)
+    {
+        fread (&Preparaciones[20], sizeof (Preparacion), 1, fp);
+    }
 
     }
     else
@@ -429,6 +446,98 @@ void NuevaVenta ()
         printf ("Hubo un error");
     }
 
+    fclose (fp);
+
+    FILE * fp;
+    fp = fopen ("Ventas.bin", "r+b");
+
+    fseek(fp,0,SEEK_END);
+    int VentaN = ftell(fp)/sizeof(Preparacion);
+
+    PedidoPreparacion PrepaVenta;
+    Venta IngVenta;
+
+    if (fp != NULL)
+    {
+        char cont;
+        char produc[];
+        int canti;
+        do
+        {
+
+        printf ("Ingrese el nombre del producto y la cantidad que desea el cliente:");
+        fflush (stdin);
+        scanf ("%s", &produc);
+        scanf ("%i", &canti);
+        VentaN++;
+
+        for (int i = 0; i<stock; i++)
+        {
+            if (produc == Preparaciones[i].nombre_preparacion)
+            {
+
+        if (canti <= Preparaciones[i].cantidad)
+        {
+            PrepaVenta.cantidad = canti;
+            PrepaVenta.nombre_preparacion = produc;
+
+            IngVenta.items_pedido[i] = PrepaVenta;
+            IngVenta.idVenta = VentaN;
+            IngVenta.cancelado = 0;
+            IngVenta.cantItems = i+1;
+            IngVenta.valor_total = ;
+            Ventas[VentaN] = IngVenta;
+        }
+        else
+        {
+            printf ("No hay stock suficiente de ese producto. Intente con menor cantidad.")
+        }
+            }
+        }
+
+        printf ("Desea ingresar otra venta? s/n");
+        fflush (stdin);
+        scanf ("%c", &cont);
+        } while (cont == 's');
+    }
+    else
+    {
+        printf ("Hubo un error");
+    }
+
+}
+
+
+void CancelaVenta (Venta Ventas[30])
+{
+    FILE * fp;
+    fp = fopen ("Ventas.bin", "r+b");
+
+    if (fp != NULL)
+    {
+
+    fseek(fp,0,SEEK_END);
+    int VentasCant = ftell(fp)/sizeof(Venta);
+    rewind (fp);
+    int cancel = 0;
+
+    printf ("Ingrese el ID de la venta que desea cancelar:");
+    scanf ("%i", &cancel);
+
+    for (int i = 0; i<VentasCant; i++)
+    {
+        if (cancel == Ventas[i].idVenta)
+        {
+            Ventas[i].cancelado = 1;
+            printf ("La venta %i ha sido cancelada", cancel);
+        }
+    }
+    for (int i = 0; i<VentasCant; i++)
+    {
+    fwrite (&Ventas[i], sizeof (Venta), 1, fp);
+    }
+    }
+    fclose (fp);
 }
 
 
