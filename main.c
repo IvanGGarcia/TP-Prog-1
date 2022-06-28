@@ -81,7 +81,7 @@ int main()
     int validos2 = 0;
     int opcionMenu, opcionMenu2;
     char continuar;
-    char Nombres[20];
+    Receta Nombres[20];
     stockIngrediente listaIngredientes [30];
     IngredienteXReceta ingXRece [30];
     Preparacion demanda [30];
@@ -332,7 +332,7 @@ void muestraRecetas (Receta recetas [], IngredienteXReceta ingXRece [], int vali
 
 /// Paso 3:
 
-void CargarPrecios (PrecioPreparacion Precios [20], Preparacion Nombres[20], int validos2)
+void CargarPrecios (PrecioPreparacion Precios [20], Receta Nombres[20], int validos2)
 {
 
 
@@ -344,7 +344,7 @@ fp = fopen ("recetas.bin", "rb");
 
 if (fp != NULL)
 {
-  while (fread(&Nombres[i], sizeof(Preparacion), 1, fp ) > 0 )
+  while (fread(&Nombres[i], sizeof(Receta), 1, fp ) > 0 )
   {
     i++;
   }
@@ -384,11 +384,11 @@ fclose (fp);
 
 }
 
-void CambioPrecio (PrecioPreparacion Precios[20] int validos2)
+void CambioPrecio (PrecioPreparacion Precios[20], Receta Nombres[20], int validos2)
 {
 
 char continuar;
-char nombre[20];
+
 FILE * fp;
 fp = fopen ("Precios.bin", "r+b");
 if (fp != NULL)
@@ -432,10 +432,10 @@ void NuevaVenta (Preparacion Preparaciones[20], Venta Ventas[30])
     if (fp != NULL)
     {
        fseek(fp,0,SEEK_END);
-    int stock = ftell(fp)/sizeof(Preparacion);
+    int CantPreparaciones = ftell(fp)/sizeof(Preparacion);
     rewind (fp);
 
-    for (int i = 0; i<stock; i++)
+    for (int i = 0; i<Cantpreparaciones; i++)
     {
         fread (&Preparaciones[20], sizeof (Preparacion), 1, fp);
     }
@@ -510,7 +510,7 @@ void NuevaVenta (Preparacion Preparaciones[20], Venta Ventas[30])
 
 void CancelaVenta (Venta Ventas[30])
 {
-    FILE * fp;
+ FILE * fp;
     fp = fopen ("Ventas.bin", "r+b");
 
     if (fp != NULL)
@@ -531,7 +531,6 @@ void CancelaVenta (Venta Ventas[30])
             Ventas[i].cancelado = 1;
             printf ("La venta %i ha sido cancelada", cancel);
         }
-    }
     for (int i = 0; i<VentasCant; i++)
     {
     fwrite (&Ventas[i], sizeof (Venta), 1, fp);
@@ -539,9 +538,6 @@ void CancelaVenta (Venta Ventas[30])
     }
     fclose (fp);
 }
-
-
-
 
 
 
